@@ -9,6 +9,7 @@
 
 
 from math import *
+import matplotlib.pyplot as plt
 
 
 hh = 0.01  # Шаг по координате
@@ -16,21 +17,24 @@ tt = 0.01  # Шаг по времени
 T = 2  # Граница по времени
 L = 1  # Граница по координате
 
-sizeL = int(L / hh) + 1
-sizeT = int(T / tt) + 1
+scheme = "4"
 
-# Ut = a * Uxx + f(x,t)    0<t<=T     0<x<L
-# a1 * Ux(0,t) + b1 * U(0,t) = c1
-# a2 * Ux(L,t) + b2 * U(L,t) = c2
-# U(x,0) = d1
+"""
+ Ut = a * Uxx + f(x,t)    0<t<=T     0<x<L
+ a1 * Ux(0,t) + b1 * U(0,t) = c1
+ a2 * Ux(L,t) + b2 * U(L,t) = c2
+ U(x,0) = d1
+"""
 
 
 a1 = 0; b1 = 1
 a2 = 1; b2 = 0
 
-
 a = 1  # a^2
 g = 0.5  # Сигма из схемы с весами
+
+sizeL = int(L / hh) + 1
+sizeT = int(T / tt) + 1
 
 
 def getExactValue(x, t):
@@ -71,15 +75,26 @@ def ArrayOfSolving():
     return mas
 
 
-def viewArray(arr, sX, sT):
-    for i in range(sT):
-        for j in range(sX):
+def viewArray(arr):
+    for i in range(len(arr)):
+        for j in range(len(arr[0])):
             print(arr[i][j], end=' | ')
         print()
 
 
 def FirstLayer_X(x):
     return d1(x)
+
+
+def FirstLayer_T(t):
+    return c1(t)
+
+#
+# def LastLayer_T(t, arr, accuracy):
+#     if accuracy == 'O1':
+#         arr[][] = hh/b2*c2(t) +
+#     elif accuracy == 'O2':
+#         pass
 
 
 def FillExactArray(arr, arr_x, arr_t):
@@ -103,8 +118,6 @@ def maxValue(arr):
 
 
 ############ Коэффициенты для метода прогонки #############
-######## Разностная апроксимация с первой точностью #######
-
 
 ak = a*g/hh/hh
 bk = -2*a*g/hh/hh - 1/tt
@@ -129,21 +142,30 @@ def b0(accuracy):
     if accuracy == 'O1':
         return b1 - a1/hh
     elif accuracy == 'O2':
-        return 1/tt+2*a*g/hh/hh-2*b1*a*g/a1/hh
+        if a1 == 0:
+            return b1
+        else:
+            return 1/tt+2*a*g/hh/hh-2*b1*a*g/a1/hh
 
 
 def c0(accuracy):
     if accuracy == 'O1':
         return a1/hh
     elif accuracy == 'O2':
-        return -2*a*g/hh/hh
+        if a1 == 0:
+            return 0
+        else:
+            return -2*a*g/hh/hh
 
 
 def f0(arr, arr_x, arr_t, t, accuracy):
     if accuracy == 'O1':
         return c1(arr_t[t])
     elif accuracy == 'O2':
-        return arr[t][0]*(1/tt-2*(1-g)*a/hh/hh+2*(1-g)*a*b1/hh/a1)+arr[t][1]*(a*2*(1-g)/hh/hh)-c1(arr_t[t+1])*2*a*g/hh/a1-c1(arr_t[t])*2*a*(1-g)/a1/hh+f(arr_x[0], arr_t[t]+tt/2)
+        if a1 == 0:
+            return c1(arr_t[t])
+        else:
+            return arr[t][0]*(1/tt-2*(1-g)*a/hh/hh+2*(1-g)*a*b1/hh/a1)+arr[t][1]*(a*2*(1-g)/hh/hh)-c1(arr_t[t+1])*2*a*g/hh/a1-c1(arr_t[t])*2*a*(1-g)/a1/hh+f(arr_x[0], arr_t[t]+tt/2)
 
 
 def fN(arr, arr_x, arr_t, t, accuracy):
@@ -174,40 +196,118 @@ def SweepMethod(arr, arr_x, arr_t, tLayer, accuracy):
     for i in range(len(Res)):
         arr[tLayer][i] = Res[::-1][i]
 
-    # if(tLayer == 2):
-    #     print(Res)
-    #     print()
-    #     print('A: ', A)
-    #     print()
-    #     print('B: ', B)
-    #     print()
 
+def FillArray(arr, arr_x, arr_t, accuracy, num_scheme):
 
-def FillArray(arr, arr_x, arr_t, accuracy):
     for i in range(len(arr_x)):
         arr[0][i] = FirstLayer_X(arr_x[i])
-    for i in range(1, len(arr_t)):
-        SweepMethod(arr, arr_x, arr_t, i, accuracy)
+
+    if num_scheme == "1":
+        for i in range(1, len(arr_t)):
+            SweepMethod(arr, arr_x, arr_t, i, accuracy)
+
+    elif num_scheme == "2":
+        for i in range(len(arr_t)):
+            arr[i][0] = FirstLayer_T(arr_t[i])
+        for i in range(1, len(arr[0]) - 1):
+            arr[1][i] = a*tt/hh/hh*(arr[0][i-1]-2*arr[0][i]+arr[0][i+1])+arr[0][i]+f(arr_x[i],arr_t[0])*tt
+        if accuracy == "O1":
+            arr[1][-1] = hh / a2 * c2(arr_t[1]) + arr[1][-2]
+        elif accuracy == "O2":
+            arr[1][-1] = (2 * hh / a * c2(arr_t[1]) + 4 * arr[1][-2] - arr[1][-3]) / 3
+        for j in range(1, len(arr) - 1):
+            for i in range(1, len(arr[j]) - 1):
+                arr[j+1][i]=(arr[j-1][i]/2/tt + a/hh/hh*(arr[j][i+1]-arr[j-1][i]+arr[j][i-1])+f(arr_x[i],arr_t[j]))/(1/2/tt+a/hh/hh)
+                if accuracy == "O1":
+                    arr[j+1][-1] = hh / a2 * c2(arr_t[j+1]) + arr[j+1][-2]
+                elif accuracy == "O2":
+                    arr[j+1][-1] = (2 * hh / a * c2(arr_t[j + 1]) + 4 * arr[j + 1][-2] - arr[j + 1][-3]) / 3
+
+    elif num_scheme == "3":
+        for i in range(len(arr_t)):
+            arr[i][0] = FirstLayer_T(arr_t[i])
+        for j in range(len(arr) - 1):
+            for i in range(1, len(arr[j]) - 1):
+                arr[j+1][i] = (arr[j][i]/tt + a*(arr[j][i+1]+arr[j][i-1])/hh/hh+f(arr_x[i], arr_t[j]))/(1/tt+2*a/hh/hh)
+            if accuracy == "O1":
+                arr[j+1][-1] = hh / a2 * c2(arr_t[j + 1]) + arr[j + 1][-2]
+            elif accuracy == "O2":
+                arr[j+1][-1]=(2*hh/a*c2(arr_t[j+1])+4*arr[j+1][-2]-arr[j+1][-3])/3
+
+    elif num_scheme == "4":
+        for i in range(len(arr_t)):
+            arr[i][0] = FirstLayer_T(arr_t[i])
+        for j in range(0, len(arr) - 2, 2):
+            for i in range(1, len(arr[j]) - 1):
+                arr[j+1][i] = (arr[j][i]/tt+a/hh/hh*(arr[j][i+1]-arr[j][i]+arr[j+1][i-1])+f(arr_x[i],arr_t[j]+tt/2))/(1/tt+a/hh/hh)
+            if accuracy == "O1":
+                arr[j+1][-1] = hh / a2 * c2(arr_t[j+1]) + arr[j+1][-2]
+            elif accuracy == "O2":
+                arr[j + 1][-1] = (2 * hh / a * c2(arr_t[j + 1]) + 4 * arr[j + 1][-2] - arr[j + 1][-3]) / 3
+            if accuracy == "O1":
+                arr[j+2][-1] = a/hh/hh*tt*(arr[j+1][-3]+hh/a2*c2(arr_t[j+2])-arr[j+1][-2])+tt*f(arr_x[-2],arr_t[j]+3*tt/2)+hh/a2*c2(arr_t[j+2])+arr[j+1][-2]
+            elif accuracy == "O2": 
+                arr[j+2][-1] = (arr[j+1][-1]/tt+a/hh/hh*(-arr[j+1][-1]+arr[j+1][-2])+f(arr_x[-1],arr_t[j]+3*tt/2)+a*tt/(hh*hh+a*tt)*(a/hh/hh*(2*hh/a2*c2(arr_t[j+2])-arr[j+1][-2]+arr[j+1][-3])+f(arr_x[-2],arr_t[j]+3*tt/2)+(2*hh/a2*c2(arr_t[j+2])+arr[j+1][-2])/tt))/(1/tt+a/hh/hh-a*a/hh/hh*tt/(hh*hh+a*tt))
+                #arr[j+2][-1]=(arr[j+1][-1]/tt+a/hh/hh*(-arr[j+1][-1]+arr[j+1][-2])+f(arr_x[-1],arr_t[j]+3*tt/2)+a/hh/hh/(1/tt+a/hh/hh)*(a/hh/hh*((2*hh/a2*c2(arr_t[j+2])-arr[j+1][-2]+arr[j+1][-3])/hh/hh)+f(arr_x[-2],arr_t[j]+3*tt/2)+(2*hh/a2*c2(arr_t[j+2])+arr[j+1][-2])/tt))/(1/tt+a/hh/hh-a*a/hh/hh/hh/hh/(1/tt+a/hh/hh))
+            for i in range(len(arr[j]) - 2, 0, -1):
+                arr[j+2][i] = (arr[j+1][i]/tt+a/hh/hh*(arr[j+2][i+1]-arr[j+1][i]+arr[j+1][i-1])+f(arr_x[i],arr_t[j]+3*tt/2))/(1/tt+a/hh/hh)
+
 
 
 ##########################################################
 
 
 U_O1 = ArrayOfSolving()
-#U_O2 = ArrayOfSolving()
+U_O2 = ArrayOfSolving()
 exactU = ArrayOfSolving()
 erU_O1 = ArrayOfSolving()
-#erU_O2 = ArrayOfSolving()
+erU_O2 = ArrayOfSolving()
 
 xValue = FillxValue(sizeL, hh)
 tValue = FilltValue(sizeT, tt)
 
-FillArray(U_O1, xValue, tValue, 'O1')
-#FillArray(U_O2, xValue, tValue, 'O2')
+FillArray(U_O1, xValue, tValue, 'O1', scheme)
+FillArray(U_O2, xValue, tValue, 'O2', scheme)
 FillExactArray(exactU, xValue, tValue)
 FillErArray(U_O1, exactU, erU_O1)
-#FillErArray(U_O2, exactU, erU_O2)
+FillErArray(U_O2, exactU, erU_O2)
 
 
-print('Первая точность: ', maxValue(erU_O1))
-#print('Вторая точность: ', maxValue(erU_O2))
+print('Первая точность: {}'.format(maxValue(erU_O1)))
+print('Вторая точность: {}'.format(maxValue(erU_O2)))
+
+viewArray(erU_O1)
+print()
+viewArray(erU_O2)
+
+
+plt.ion()
+for i in range(len(exactU)):
+    plt.clf()
+    plt.plot(xValue, exactU[i], 'b')
+    plt.plot(xValue, U_O1[i], 'r')
+    plt.plot(xValue, U_O2[i], 'g')
+    plt.ylim(-2, 10)
+    plt.pause(0.01)
+    plt.draw()
+plt.ioff()
+
+
+plt.figure("Момент времени t = 2")
+plt.plot(xValue, exactU[-1], 'b')
+plt.plot(xValue, U_O1[-1], 'r')
+plt.plot(xValue, U_O2[-1], 'g')
+
+plt.figure("Момент времени t = 1.5")
+plt.plot(xValue, exactU[150], 'b')
+plt.plot(xValue, U_O1[150], 'r')
+plt.plot(xValue, U_O2[150], 'g')
+
+plt.figure("Момент времени t = 1")
+plt.plot(xValue, exactU[100], 'b')
+plt.plot(xValue, U_O1[100], 'r')
+plt.plot(xValue, U_O2[100], 'g')
+
+
+
+plt.show()
