@@ -89,13 +89,6 @@ def FirstLayer_X(x):
 def FirstLayer_T(t):
     return c1(t)
 
-#
-# def LastLayer_T(t, arr, accuracy):
-#     if accuracy == 'O1':
-#         arr[][] = hh/b2*c2(t) +
-#     elif accuracy == 'O2':
-#         pass
-
 
 def FillExactArray(arr, arr_x, arr_t):
     for j in range(len(arr)):
@@ -307,7 +300,5 @@ plt.figure("Момент времени t = 1")
 plt.plot(xValue, exactU[100], 'b')
 plt.plot(xValue, U_O1[100], 'r')
 plt.plot(xValue, U_O2[100], 'g')
-
-
 
 plt.show()
