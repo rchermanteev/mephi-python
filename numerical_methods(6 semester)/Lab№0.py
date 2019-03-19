@@ -1,3 +1,8 @@
+"""
+Wave Equation
+"""
+
+
 from math import *
 import matplotlib.pyplot as plt
 import time
