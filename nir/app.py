@@ -22,7 +22,7 @@ WRITE_LOG = True
 WRITE_IMG_WITH_CONTOURS = False
 SHOW_IMG = False
 
-PROJECT_DIR = "C:/Users/Rammi/PycharmProjects/NIR/"
+PROJECT_DIR = "<Enter_path_to_your_dir>"
 
 
 def get_result_by_img_set(series, method):
@@ -105,17 +105,17 @@ def get_result_by_img_set(series, method):
 
 
 series_list = ["G4", "G6", "G07", "G08", "G10", "G11", "G35", "G36", "G43"]
-# series_list = ["G4"]
 
 for series in series_list:
     print(f"Обрабатывается серия: {series}")
-    # # print("method_hafa")
-    # # get_result_by_img_set(series, "method_hafa")
-    # print("method_half_angle")
-    # get_result_by_img_set(series, "method_half_angle")
-    # print("method_circular")
-    # get_result_by_img_set(series, "method_circular")
-    # print("method_elliptic")
-    # get_result_by_img_set(series, "method_elliptic")
+    
+    print("method_hafa")
+    get_result_by_img_set(series, "method_hafa")
+    print("method_half_angle")
+    get_result_by_img_set(series, "method_half_angle")
+    print("method_circular")
+    get_result_by_img_set(series, "method_circular")
+    print("method_elliptic")
+    get_result_by_img_set(series, "method_elliptic")
     print("method_solve_laplace")
     get_result_by_img_set(series, "method_solve_laplace")

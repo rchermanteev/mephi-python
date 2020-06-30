@@ -92,8 +92,8 @@ class MethodSolutionOfTheLaplaceEquation:
         point_with_min_x = contour_drop_sort_x[0]
         point_with_max_x = contour_drop_sort_x[-1]
 
-        r = abs(point_with_max_x[0] - point_with_min_x[0])  # + 2
-        h = abs(max_point[1] - self.base_line)  # + 3
+        r = abs(point_with_max_x[0] - point_with_min_x[0])
+        h = abs(max_point[1] - self.base_line)
 
         relation = h / r * 2
 

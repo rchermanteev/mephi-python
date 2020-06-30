@@ -26,13 +26,13 @@ class MethodHafa:
         radius = None
         centre = None
 
-        for circle in circles[0]:  # TODO: Можно доработать под общий случай, без хардкода констант
+        for circle in circles[0]:
             if self.base_line < circle[1] < 1100 and 400 < circle[0] < 800 and circle[2] < 450:
                 radius = circle[2]
                 centre = (circle[0], circle[1])
                 res_img = cv2.circle(self.image, centre, 3, (0, 255, 255), -1)
                 res_img = cv2.circle(res_img, centre, radius, (0, 0, 255), 1)
-                break  # TODO: Такое себе решение, нодо разобраться
+                break
 
         return res_img, radius, centre
 
@@ -56,7 +56,7 @@ class MethodHafa:
         temp_point = (int(point_tang[0] - 200), int(-tang * 200 + point_tang[1]))
         cv2.line(img, point_tang, temp_point, (255, 0, 0), 2)
 
-    def draw_result_text(self, angle, radius, centre):  # TODO: Уточнить вывод
+    def draw_result_text(self, angle, radius, centre):
         ang = f"Tangent angle: {angle*180/np.pi}"
         koef = f"Wetting coefficient: {np.cos(angle)}"
         cent = f"Coordinates of the center of the circle: (x: {centre[0]}, y: {centre[1]})"

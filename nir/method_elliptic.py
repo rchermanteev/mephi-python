@@ -30,11 +30,6 @@ class MethodElliptic:
         point_to_ellipse = contour_drop[20:-10:(len(contour_drop) - 20) // 8][1:-1]
 
         def reestablish_ellipse(*six_points_array):
-            """
-            Ax2 + Bxy + Cy2 + Dx + Ey + F = 0
-            :param six_points_array:
-            :return:
-            """
             p1, p2, p3, p4, p5, p6 = six_points_array
             x1, y1 = p1
             x2, y2 = p2
@@ -96,7 +91,6 @@ class MethodElliptic:
         tan = (px - x0) * b ** 2 / (py - y0) / a ** 2
 
         angle = np.arctan(tan)
-        # print(angle * 180 / np.pi)
 
         px1 = px - 200
         py1 = 200 * tan + py

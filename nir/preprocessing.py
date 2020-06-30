@@ -14,7 +14,7 @@ def auto_canny(img, sigma=0.33):
 
 
 def inter_prepare_img(img, base_line):
-    for i in range(len(img)):  # TODO: Вынести в функцию utils/prepare_img
+    for i in range(len(img)):
 
         if 0 < i < 400 or base_line - 5 < i < len(img):
             for j in range(len(img[0])):
@@ -30,7 +30,6 @@ def inter_prepare_img(img, base_line):
 
 
 def prepare_img(img, threshold=None):
-    # TODO: Не все действия вынесены в функцию
     thr = threshold or np.median(img) / 2
     bl_wh_img = cv2.inRange(img, (thr, thr, thr), (255, 255, 255))
     return cv2.copyMakeBorder(
@@ -38,9 +37,7 @@ def prepare_img(img, threshold=None):
     )
 
 
-def find_and_draw_contours(
-    temp_img, draw_img
-):  # Есть артефакты (Нужна для дебага и второго способа решения)
+def find_and_draw_contours(temp_img, draw_img):
     contours, hierarchy = cv2.findContours(
         temp_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
     )
@@ -57,7 +54,7 @@ def find_and_draw_contours(
     )
 
 
-def find_horizontal_line(img):  # TODO: Переделать через Хафа
+def find_horizontal_line(img):
     list_point = []
 
     for j in range(len(img[0])):
@@ -70,5 +67,3 @@ def find_horizontal_line(img):  # TODO: Переделать через Хафа
     line_cord = c[0][0]
 
     return line_cord
-
-

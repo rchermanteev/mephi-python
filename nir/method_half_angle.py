@@ -51,13 +51,13 @@ class MethodHalfAngle:
 
         cv2.drawContours(self.image, [np.array(contour_drop)], 0, (255, 0, 0), 3)
 
-        r = abs(point_with_max_x[0] - point_with_min_x[0]) #+ 1
-        h = abs(max_point[1] - self.base_line) #+ 5
+        r = abs(point_with_max_x[0] - point_with_min_x[0])
+        h = abs(max_point[1] - self.base_line)
 
         angle = 2 * np.arctan(h / (r / 2))
 
-        px = point_with_max_x[0]  # + 1
-        py = point_with_min_x[1]  # cord_line_y
+        px = point_with_max_x[0]
+        py = point_with_min_x[1]
         tan = - np.tan(angle)
 
         px1 = px - 200
